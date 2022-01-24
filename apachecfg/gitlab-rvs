@@ -1,0 +1,27 @@
+<VirtualHost *:80>
+    ServerName JENKINS_SERVER_OUTSIDE
+    Redirect permanent / https://JENKINS_SERVER_OUTSIDE/
+</VirtualHost>
+
+
+<VirtualHost *:443>
+    SSLCertificateFile /etc/letsencrypt/live/JENKINS_SERVER_OUTSIDE/cert.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/JENKINS_SERVER_OUTSIDE/privkey.pem
+    SSLCertificateChainFile /etc/letsencrypt/live/JENKINS_SERVER_OUTSIDE/chain.pem
+    ServerName JENKINS_SERVER_OUTSIDE
+    ProxyPreserveHost on
+    ProxyPass / http://JENKINS_SERVER_INSIDE/ nocanon
+    ProxyPassReverse / http://JENKINS_SERVER_INSIDE/
+    ProxyRequests       off
+    AllowEncodedSlashes NoDecode
+    <Proxy http://JENKINS_SERVER_INSIDE/jenkins/*>
+        Order deny,allow
+        Allow from all
+    </Proxy>
+#   RewriteEngine       on
+#   RewriteRule        ^/jenkins/(.*)$ http://%{HTTP_HOST}/$1 [P]
+#   ProxyPassReverseCookiePath /jenkins /
+    RequestHeader set X-Forwarded-Proto "https"
+    RequestHeader set X-Forwarded-Port "443"
+</VirtualHost>
+

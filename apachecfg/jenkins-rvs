@@ -1,0 +1,24 @@
+<VirtualHost *:80>
+    ServerName GITSERVEROUTSIDE
+    ServerAlias GITSERVEROUTSIDE
+    Redirect permanent / https://GITSERVEROUTSIDE/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName GITSERVEROUTSIDE
+    SSLCertificateFile /etc/letsencrypt/live/GITSERVEROUTSIDE/cert.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/GITSERVEROUTSIDE/privkey.pem
+    SSLCertificateChainFile /etc/letsencrypt/live/GITSERVEROUTSIDE/chain.pem
+    ProxyRequests off
+    ProxyPreserveHost on
+    ProxyPass / http://GITSERVER_INSIDE:9980/
+    ProxyPassReverse / http://GITSERVER_INSIDE:9980/
+    <Proxy http://GITSERVER_INSIDE:9980/*>
+        Order deny,allow
+        Allow from all
+    </Proxy>
+#   RewriteEngine       on
+#   RewriteRule        ^/git/(.*)$ http://%{HTTP_HOST}/$1 [P]
+#   ProxyPassReverseCookiePath /git /
+   ErrorLog ${APACHE_LOG_DIR}/git-error.log
+</VirtualHost>
